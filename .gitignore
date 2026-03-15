@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+
+# Production
+dist/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Database
+prisma/*.db
+prisma/*.db-journal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local config
+.claude/
+
+# Misc
+*.log
+npm-debug.log*

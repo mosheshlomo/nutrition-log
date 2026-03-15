@@ -1,0 +1,84 @@
+// Nutrition Log - Prisma Schema
+// SQLite for simple self-hosted deployment
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A single food entry logged on a specific day
+model LogEntry {
+  id          String   @id @default(cuid())
+  date        String   // ISO date string "YYYY-MM-DD"
+  meal        String   // Breakfast | Snack | Lunch | Pre-workout | Dinner | Other
+  foodName    String
+  quantity    String?  // e.g. "2 yogurts", "250g chicken"
+  calories    Float    @default(0)
+  protein     Float    @default(0)
+  carbs       Float    @default(0)
+  fat         Float    @default(0)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+}
+
+// Personal food library — reusable food items
+model FoodItem {
+  id          String   @id @default(cuid())
+  name        String
+  calories    Float    @default(0)
+  protein     Float    @default(0)
+  carbs       Float    @default(0)
+  fat         Float    @default(0)
+  serving     String?  // default serving description
+  tags        String?  // comma-separated tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  TemplateItem TemplateItem[]
+}
+
+// A saved meal template (collection of foods)
+model MealTemplate {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  items       TemplateItem[]
+}
+
+// An individual food item within a meal template
+model TemplateItem {
+  id           String       @id @default(cuid())
+  templateId   String
+  foodItemId   String?      // optional link to food library
+  foodName     String
+  quantity     String?
+  calories     Float        @default(0)
+  protein      Float        @default(0)
+  carbs        Float        @default(0)
+  fat          Float        @default(0)
+  sortOrder    Int          @default(0)
+
+  template     MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  foodItem     FoodItem?    @relation(fields: [foodItemId], references: [id])
+}
+
+// User settings — single row, id="default"
+model UserSettings {
+  id              String @id @default("default")
+  caloriesTarget  Float?
+  proteinTarget   Float?
+  carbsTarget     Float?
+  fatTarget       Float?
+  // Ordered comma-separated meal category list
+  mealOrder       String @default("ארוחת בוקר,חטיף,ארוחת צהריים,לפני אימון,ארוחת ערב,אחר")
+}
