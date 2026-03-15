@@ -1,13 +1,14 @@
 // Nutrition Log - Prisma Schema
-// SQLite for simple self-hosted deployment
+// PostgreSQL for Vercel + Supabase deployment
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // A single food entry logged on a specific day
