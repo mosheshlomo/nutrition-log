@@ -25,23 +25,33 @@ export default function TodayPage() {
   const [selectedTemplateMeal, setSelectedTemplateMeal] = useState("ארוחת בוקר");
 
   const loadEntries = useCallback(async () => {
-    const res = await fetch(`/api/entries?date=${date}`);
-    setEntries(await res.json());
+    try {
+      const res = await fetch(`/api/entries?date=${date}`);
+      const data = await res.json();
+      setEntries(Array.isArray(data) ? data : []);
+    } catch {
+      setEntries([]);
+    }
   }, [date]);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [e, f, t, s] = await Promise.all([
-      fetch(`/api/entries?date=${date}`).then((r) => r.json()),
-      fetch("/api/foods").then((r) => r.json()),
-      fetch("/api/templates").then((r) => r.json()),
-      fetch("/api/settings").then((r) => r.json()),
-    ]);
-    setEntries(e);
-    setFoods(f);
-    setTemplates(t);
-    setSettings(s);
-    setLoading(false);
+    try {
+      const [e, f, t, s] = await Promise.all([
+        fetch(`/api/entries?date=${date}`).then((r) => r.json()),
+        fetch("/api/foods").then((r) => r.json()),
+        fetch("/api/templates").then((r) => r.json()),
+        fetch("/api/settings").then((r) => r.json()),
+      ]);
+      setEntries(Array.isArray(e) ? e : []);
+      setFoods(Array.isArray(f) ? f : []);
+      setTemplates(Array.isArray(t) ? t : []);
+      setSettings(s && !s.error ? s : null);
+    } catch (err) {
+      console.error("Failed to load data:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [date]);
 
   useEffect(() => {
